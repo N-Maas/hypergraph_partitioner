@@ -1,31 +1,3 @@
-[submodule "partitioner/parkway"]
-	path = partitioner/parkway
-	url = https://github.com/kittobi1992/parkway.git
-[submodule "partitioner/kahypar"]
-	path = partitioner/kahypar
-	url = https://github.com/SebastianSchlag/kahypar.git
-[submodule "partitioner/HYPE"]
-	path = partitioner/HYPE
-	url = https://github.com/larsgottesbueren/HYPE.git
-[submodule "partitioner/KaHIP"]
-	path = partitioner/KaHIP
-	url = https://github.com/schulzchristian/KaHIP.git
-[submodule "partitioner/kahip_opt"]
-	path = partitioner/kahip_opt
-	url = https://github.com/SebastianSchlag/KaHIP.git
-	branch = kahypar_flow_model
-[submodule "partitioner/bipart"]
-	path = partitioner/bipart
-	url = https://github.com/IntelligentSoftwareSystems/Galois.git
-[submodule "partitioner/mt-kahypar"]
-	path = partitioner/mt-kahypar
-	url = https://github.com/kahypar/mt-kahypar.git
 [submodule "plots"]
 	path = plots
 	url = https://github.com/kittobi1992/experimental_plot_scripts.git
-[submodule "partitioner/KaMinPar"]
-	path = partitioner/KaMinPar
-	url = https://github.com/KaHIP/KaMinPar.git
-[submodule "partitioner/mt-kahip"]
-	path = partitioner/mt-kahip
-	url = https://github.com/KaHIP/mt-KaHIP.git
