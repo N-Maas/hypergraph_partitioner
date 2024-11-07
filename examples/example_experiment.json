@@ -8,5 +8,6 @@
   "seeds": [1, 2],
   "objective": "km1",
   "timelimit": 28800,
-  "hmetis_instance_folder": "/home/nikolai/Documents/Hypergraphs/Sonstiges/benchmark_sets/large/"
+  "hmetis_instance_folder": "HOME/hypergraph_partitioner/examples/hmetis_test_instances",
+  "graph_instance_folder": "HOME/hypergraph_partitioner/examples/graph_test_instances"
 }

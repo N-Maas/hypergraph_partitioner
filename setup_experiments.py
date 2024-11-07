@@ -8,7 +8,7 @@ import ntpath
 import shutil
 import re
 
-from partitioner_mapping import partitioner_mapping
+from experiments.partitioner_mapping import partitioner_mapping
 
 partitioner_script_folder = os.environ.get("PARTITIONER_SCRIPT_FOLDER")
 assert (partitioner_script_folder != None), "check env.sh"
