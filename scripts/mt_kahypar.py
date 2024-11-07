@@ -9,7 +9,7 @@ from mt_kahypar_common import (get_args, invalid, parse_or_default,
 ###################################
 # SETUP ENV
 ###################################
-algorithm = "MT-KaHyPar"
+algorithm = "Mt-KaHyPar"
 mt_kahypar = os.environ.get("MT_KAHYPAR")
 assert (mt_kahypar != None), "check env.sh"
 ###################################

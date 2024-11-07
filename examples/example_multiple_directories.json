@@ -1,6 +1,6 @@
 {
   "name": "tagged_instances",
-  "config": [ { "partitioner" : "MT-KaHyPar", "name" : "MT-KaHyPar-D" } ],
+  "config": [ { "partitioner" : "Mt-KaHyPar", "name" : "Mt-KaHyPar-D" } ],
   "threads": [8],
   "k": [2, 8, 32],
   "epsilon": 0.03,

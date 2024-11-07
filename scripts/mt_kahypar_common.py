@@ -56,7 +56,7 @@ def run_mtkahypar(mt_kahypar, args, default_args, print_fail_msg=True, detect_in
       args_list.append("--instance-type=graph")
       args_list.append("--input-file-format=metis")
 
-  # Run MT-KaHyPar
+  # Run Mt-KaHyPar
   cmd = [mt_kahypar,
          "-h" + args.graph,
          "-k" + str(args.k),
@@ -87,7 +87,7 @@ def run_mtkahypar(mt_kahypar, args, default_args, print_fail_msg=True, detect_in
   t.cancel()
 
   if mt_kahypar_proc.returncode == 0:
-    # Extract metrics out of MT-KaHyPar output
+    # Extract metrics out of Mt-KaHyPar output
     for line in out.split('\n'):
       result_line = str(line).strip()
       if "RESULT" in result_line:
@@ -119,7 +119,7 @@ def print_call(mt_kahypar, args, default_args, detect_instance_type=False):
       args_list.append("--instance-type=graph")
       args_list.append("--input-file-format=metis")
 
-  # Run MT-KaHyPar
+  # Run Mt-KaHyPar
   cmd = [mt_kahypar,
          "-h" + args.graph,
          "-k" + str(args.k),

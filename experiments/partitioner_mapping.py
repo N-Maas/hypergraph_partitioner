@@ -20,7 +20,7 @@ class Partitioner:
 
 
 partitioner_mapping = {
-    "MT-KaHyPar":       Partitioner("mt_kahypar", ["graph", "hmetis"], parallel=True, dynamic_header=True),
+    "Mt-KaHyPar":       Partitioner("mt_kahypar", ["graph", "hmetis"], parallel=True, dynamic_header=True),
     "hMetis-R":         Partitioner("hmetis_rb", "hmetis", parallel=False),
     "hMetis-K":         Partitioner("hmetis_k", "hmetis", parallel=False),
     "PaToH-S":          Partitioner("patoh_s", "patoh", parallel=False),
