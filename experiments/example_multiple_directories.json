@@ -1,0 +1,16 @@
+{
+  "name": "tagged_instances",
+  "config": [ { "partitioner" : "MT-KaHyPar", "name" : "MT-KaHyPar-D" } ],
+  "threads": [8],
+  "k": [2, 8, 32],
+  "epsilon": 0.03,
+  "seeds": [1, 2],
+  "objective": "km1",
+  "timelimit": 28800,
+  "instances": [
+    { "path": "<path to regular hmetis instances>", "type": "hmetis", "tag": "regular" },
+    { "path": "<path to regular graph instances>", "type": "metis", "tag": "regular" },
+    { "path": "<path to irregular hmetis instances>", "type": "hmetis", "tag": "irregular" },
+    { "path": "<path to irregular graph instances>", "type": "metis", "tag": "irregular" }
+  ]
+}
