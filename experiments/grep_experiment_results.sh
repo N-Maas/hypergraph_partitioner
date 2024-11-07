@@ -5,8 +5,13 @@ mkdir experimental_results
 for result_folder in $experiment_dir/*_results;
 do
   result_file="${result_folder/_results/.csv}"
+  header_file="${result_folder/_results/.header.csv}"
   rm -f $result_file
-  echo "$HEAD" >> $result_file
+  if [[ -f "$header_file" ]]; then
+    cat "$header_file" >> $result_file
+  else
+    echo "$HEAD" >> $result_file
+  fi
   for instance_result_file in $result_folder/*.results;
   do
     tail -1 $instance_result_file >> $result_file

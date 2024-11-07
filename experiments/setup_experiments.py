@@ -8,102 +8,22 @@ import ntpath
 import shutil
 import re
 
-def intersection(lst1, lst2):
-  lst3 = [value for value in lst1 if value in lst2]
-  return lst3
+from partitioner_mapping import partitioner_mapping
 
 partitioner_script_folder = os.environ.get("PARTITIONER_SCRIPT_FOLDER")
 assert (partitioner_script_folder != None), "check env.sh"
 
-serial_partitioner = [ "hMetis-R", "hMetis-K", "PaToH-S", "PaToH-D", "PaToH-Q",
-                       "KaHyPar-CA", "KaHyPar-K", "KaHyPar-R", "Mondriaan", "Hype",
-                       "KaFFPa-Fast", "KaFFPa-FastS", "KaFFPa-Eco", "KaFFPa-EcoS",
-                       "KaFFPa-Strong", "KaFFPa-StrongS", "Metis-R", "Metis-K",
-                       "Chaco-R", "Chaco-K", "Scotch" ]
-parallel_partitioner = [ "Parkway", "Zoltan", "MT-KaHyPar-D", "MT-KaHyPar-Q", "MT-KaHyPar-D-F", "MT-KaHyPar-Q-F",
-                         "MT-KaHyPar-Graph-D", "MT-KaHyPar-Graph-Q", "MT-KaHIP", "MT-Metis", "KaMinPar",
-                         "ParHIP", "ParMetis", "PT-Scotch", "BiPart" ]
 
-partitioner_mapping = { "hMetis-R": "hmetis_rb",
-                        "hMetis-K": "hmetis_k",
-                        "PaToH-S": "patoh_s",
-                        "PaToH-D": "patoh_d",
-                        "PaToH-Q": "patoh_q",
-                        "KaHyPar-CA": "kahypar_ca",
-                        "KaHyPar-K": "kahypar_k",
-                        "KaHyPar-R": "kahypar_r",
-                        "Mondriaan": "mondriaan",
-                        "Hype": "hype",
-                        "Parkway": "parkway",
-                        "Zoltan": "zoltan",
-                        "BiPart": "bipart",
-                        "MT-KaHyPar": "mt_kahypar",
-                        "MT-KaHyPar-D": "mt_kahypar_d",
-                        "MT-KaHyPar-Q": "mt_kahypar_q",
-                        "MT-KaHyPar-D-F": "mt_kahypar_d_f",
-                        "MT-KaHyPar-Q-F": "mt_kahypar_q_f",
-                        "MT-KaHyPar-Graph-D": "mt_kahypar_graph_d",
-                        "MT-KaHyPar-Graph-Q": "mt_kahypar_graph_q",
-                        "MT-KaHIP": "mt_kahip",
-                        "MT-Metis": "mt_metis",
-                        "KaMinPar": "kaminpar",
-                        "Metis-R": "metis_rb",
-                        "Metis-K": "metis_k",
-                        "Chaco-R": "chaco_rb",
-                        "Chaco-K": "chaco_k",
-                        "Scotch": "scotch",
-                        "PT-Scotch": "pt_scotch",
-                        "KaFFPa-Fast": "kaffpa_fast",
-                        "KaFFPa-FastS": "kaffpa_fastsocial",
-                        "KaFFPa-Eco": "kaffpa_eco",
-                        "KaFFPa-EcoS": "kaffpa_ecosocial",
-                        "KaFFPa-Strong": "kaffpa_strong",
-                        "KaFFPa-StrongS": "kaffpa_strongsocial",
-                        "ParHIP": "parhip",
-                        "ParMetis": "parmetis" }
+###################################
+###      Helper functions       ###
+###################################
 
-format_mapping = { "hMetis-R": "hmetis_instance_folder",
-                   "hMetis-K": "hmetis_instance_folder",
-                   "PaToH-S": "patoh_instance_folder",
-                   "PaToH-D": "patoh_instance_folder",
-                   "PaToH-Q": "patoh_instance_folder",
-                   "KaHyPar-CA": "hmetis_instance_folder",
-                   "KaHyPar-K": "hmetis_instance_folder",
-                   "KaHyPar-R": "hmetis_instance_folder",
-                   "Mondriaan": "hmetis_instance_folder",
-                   "Hype": "hmetis_instance_folder",
-                   "Parkway": "hmetis_instance_folder",
-                   "Zoltan": "zoltan_instance_folder",
-                   "BiPart": "hmetis_instance_folder",
-                   "MT-KaHyPar-D": "hmetis_instance_folder",
-                   "MT-KaHyPar-Q": "hmetis_instance_folder",
-                   "MT-KaHyPar-D-F": "hmetis_instance_folder",
-                   "MT-KaHyPar-Q-F": "hmetis_instance_folder",
-                   "MT-KaHyPar-Graph-D": "graph_instance_folder",
-                   "MT-KaHyPar-Graph-Q": "graph_instance_folder",
-                   "MT-KaHIP": "graph_instance_folder",
-                   "MT-Metis": "graph_instance_folder",
-                   "KaMinPar": "graph_instance_folder",
-                   "Metis-R": "graph_instance_folder",
-                   "Metis-K": "graph_instance_folder",
-                   "Chaco-R": "graph_instance_folder",
-                   "Chaco-K": "graph_instance_folder",
-                   "Scotch": "scotch_instance_folder",
-                   "PT-Scotch": "scotch_instance_folder",
-                   "KaFFPa-Fast": "graph_instance_folder",
-                   "KaFFPa-FastS": "graph_instance_folder",
-                   "KaFFPa-Eco": "graph_instance_folder",
-                   "KaFFPa-EcoS": "graph_instance_folder",
-                   "KaFFPa-Strong": "graph_instance_folder",
-                   "KaFFPa-StrongS": "graph_instance_folder",
-                   "ParHIP": "graph_instance_folder",
-                   "ParMetis": "graph_instance_folder" }
+def intersection(lst1, lst2):
+  lst3 = [value for value in lst1 if value in lst2]
+  return lst3
 
 def get_all_hypergraph_instances(dir):
-  return [dir + "/" + hg for hg in os.listdir(dir) if hg.endswith('.hgr')]
-
-def get_all_mondriaan_instances(dir):
-  return [dir + "/" + mondriaan_hg for mondriaan_hg in os.listdir(dir) if mondriaan_hg.endswith('.mondriaan.mtx')]
+  return [dir + "/" + hg for hg in os.listdir(dir) if hg.endswith('.hgr') or hg.endswith('.hmetis')]
 
 def get_all_zoltan_instances(dir):
   return [dir + "/" + zoltan_hg for zoltan_hg in os.listdir(dir) if zoltan_hg.endswith('.zoltan.hg')]
@@ -114,85 +34,128 @@ def get_all_graph_instances(dir):
 def get_all_scotch_instances(dir):
   return [dir + "/" + graph for graph in os.listdir(dir) if graph.endswith('.scotch')]
 
-def get_all_benchmark_instances_in_directory(partitioner, config_instance_type, instance_dir):
-  if partitioner == "Mondriaan":
-    return get_all_mondriaan_instances(instance_dir)
-  elif config_instance_type == "hmetis_instance_folder" or config_instance_type == "patoh_instance_folder":
+def get_all_benchmark_instances_in_directory(input_format, instance_dir):
+  if input_format == "hmetis" or input_format == "patoh":
     return get_all_hypergraph_instances(instance_dir)
-  elif config_instance_type == "zoltan_instance_folder":
+  elif input_format == "zoltan":
     return get_all_zoltan_instances(instance_dir)
-  elif config_instance_type == "graph_instance_folder":
+  elif input_format == "graph" or input_format == "metis":
     return get_all_graph_instances(instance_dir)
-  elif config_instance_type == "scotch_instance_folder":
+  elif input_format == "scotch":
     return get_all_scotch_instances(instance_dir)
 
+
 def get_all_benchmark_instances(partitioner, config):
-  config_instance_type = format_mapping[partitioner]
-  if config_instance_type in config:
-    assert "instances" not in config
-    instance_dir = config[config_instance_type]
-    return {instance: None for instance in get_all_benchmark_instances_in_directory(partitioner, config_instance_type, instance_dir)}
+  input_format_list = partitioner_mapping[partitioner].format
+  for format_type in input_format_list:
+    input_format = format_type + "_instance_folder"
+    if input_format in config:
+      assert "instances" not in config
+      instance_dir = config[input_format]
+      return {instance: None for instance in get_all_benchmark_instances_in_directory(format_type, instance_dir)}
+
+    elif "instances" in config:
+      # more general case where multiple directories and tags can be defined
+      result = {}
+      dir_list = [(entry["path"], entry["type"], entry.get("tag")) for entry in config["instances"]]
+      for (instance_dir, curr_format, instance_tag) in dir_list:
+        assert curr_format in ["hmetis", "patoh", "zoltan", "graph", "metis", "scotch"], f"invalid instance type: {curr_format}"
+        if curr_format == format_type:
+          input_format = format_type + "_instance_folder"
+          tmp = {instance: instance_tag for instance in get_all_benchmark_instances_in_directory(format_type, instance_dir)}
+          intersection = {ntpath.basename(p) for p in result} & {ntpath.basename(p) for p in tmp}
+          assert len(intersection) == 0, f"instance appears in multiple folders: {intersection}"
+          result.update({instance: instance_tag for instance in tmp})
+      if len(result) > 0:
+        assert all(tag is not None for tag in result.values()) or all(tag is None for tag in result.values()), "Inconsistent instance tags!"
+        return result
+
+  assert False, f"No instances found for: {partitioner}"
+
+def serial_partitioner_call(partitioner, instance, k, epsilon, seed, objective, timelimit):
+  return (
+    partitioner_script_folder + "/" + partitioner_mapping[partitioner].script + ".py " + instance
+    + " " + str(k) + " " + str(epsilon) + " " + str(seed) + " " + str(objective) + " " + str(timelimit)
+  )
+
+def parallel_partitioner_call(partitioner, instance, threads, k, epsilon, seed, objective, timelimit):
+  return (
+    partitioner_script_folder + "/" + partitioner_mapping[partitioner].script + ".py " + instance
+    + " " + str(threads) + " " + str(k) + " " + str(epsilon) + " " + str(seed) + " " + str(objective) + " " + str(timelimit)
+  )
+
+def partitioner_call(is_serial, partitioner, instance, threads, k, epsilon, seed, objective, timelimit, config_file, algorithm_name, args, header, tag):
+  if is_serial:
+    call = serial_partitioner_call(partitioner, instance, k, epsilon, seed, objective, timelimit)
   else:
-    # more general case where multiple directories and tags can be defined
-    dir_list = config["instances"]
-    result = {}
-    for entry in dir_list:
-      instance_dir = entry["path"]
-      instance_type = entry["type"]
-      instance_tag = entry.get("tag")
-      assert instance_type in ["hmetis", "patoh", "zoltan", "graph", "scotch"], f"invalid instance type: {instance_type}"
-      config_instance_type = instance_type + "_instance_folder"
-      tmp = {instance: instance_tag for instance in get_all_benchmark_instances_in_directory(partitioner, config_instance_type, instance_dir)}
-      intersection = {ntpath.basename(p) for p in result} & {ntpath.basename(p) for p in tmp}
-      assert len(intersection) == 0, f"instance appears in multiple folders: {intersection}"
-      result.update({instance: instance_tag for instance in tmp})
-    return result
-
-def serial_partitioner_call(partitioner, instance, k, epsilon, seed, objective, timelimit, config_file, algorithm_name, args):
-  call = partitioner_script_folder + "/" + partitioner_mapping[partitioner] + ".py " + instance + " " + str(k) + " " + str(epsilon) + " " + str(seed) + " " + str(objective) + " " + str(timelimit)
+    call = parallel_partitioner_call(partitioner, instance, threads, k, epsilon, seed, objective, timelimit)
   if config_file != "":
-    call = call + " --config " + config_file
+    call += " --config " + config_file
   if algorithm_name != "":
-    call = call + " --name " + algorithm_name
-  if args != None:
+    call += " --name " + algorithm_name
+  if args is not None:
     assert "'" not in args
-    call = call + f" --args ' {args}'"
-  return call
-
-def parallel_partitioner_call(partitioner, instance, threads, k, epsilon, seed, objective, timelimit, config_file, algorithm_name, args):
-  call = partitioner_script_folder + "/" + partitioner_mapping[partitioner] + ".py " + instance + " " + str(threads) + " " + str(k) + " " + str(epsilon) + " " + str(seed) + " " + str(objective) + " " + str(timelimit)
-  if config_file != "":
-    call = call + " --config " + config_file
-  if algorithm_name != "":
-    call = call + " --name " + algorithm_name
-  if args != None:
-    assert "'" not in args
-    call = call + f" --args ' {args}'"
+    call += f" --args ' {args}'"
+  if header is not None:
+    call += f" --header '{header}'"
+    if tag is not None:
+      call += " --tag"
+  if tag is not None:
+    call += f' | {{ line=$(cat); echo "{tag},$line"; }}'  # bash snippet which prepends to stdin
   return call
 
 def partitioner_dump(result_dir, instance, threads, k, seed):
   return os.path.abspath(result_dir) + "/" + ntpath.basename(instance) + "." + str(threads) + "." + str(k) + "." + str(seed) + ".results"
 
+def partitioner_header(result_dir):
+  return str(os.path.abspath(result_dir)).removesuffix("_results") + ".header.csv"
+
+
+
+###################################
+###        Main Script          ###
+###################################
+
 parser = argparse.ArgumentParser()
 parser.add_argument("experiment", type=str)
+parser.add_argument("-f", "--force", action="store_true")
 
 args = parser.parse_args()
 
 with open(args.experiment) as json_experiment:
-    config = json.load(json_experiment)
+  config = json.load(json_experiment)
 
-    now = datetime.datetime.now()
-    experiment_dir = str(now.year) + "-" + str(now.month) + "-" + str(now.day) + "_" + config["name"]
-    workload_file = experiment_dir + "/workload.txt"
-    shutil.rmtree(experiment_dir, ignore_errors=True)
-    os.makedirs(experiment_dir, exist_ok=True)
+now = datetime.datetime.now()
+experiment_dir = str(now.year) + "-" + str(now.month) + "-" + str(now.day) + "_" + config["name"]
+workload_file = experiment_dir + "/workload.txt"
+if args.force:
+  shutil.rmtree(experiment_dir, ignore_errors=True)
+  os.makedirs(experiment_dir, exist_ok=True)
+else:
+  try:
+    os.makedirs(experiment_dir, exist_ok=False)
+  except OSError:
+    print("Experiment directory already exists! Call with -f to delete old directory")
+    exit(1)
 
-    epsilon = config["epsilon"]
-    objective = config["objective"]
-    timelimit = config["timelimit"]
-    write_partition_file = config["write_partition_file"] if "write_partition_file" in config else False
+epsilon = config["epsilon"]
+objective = config["objective"]
+timelimit = config["timelimit"]
+write_partition_file = config["write_partition_file"] if "write_partition_file" in config else False
+dynamic_header = config["dynamic_header"] if "dynamic_header" in config else True
 
-    # Setup experiments
+# Setup experiments
+try:
+  for partitioner_config in config["config"]:
+    partitioner = partitioner_config["partitioner"]
+    algorithm_file = partitioner
+    if "name" in partitioner_config:
+      algorithm_file = partitioner_config["name"]
+    algorithm_file = '_'.join(list(map(lambda x: x.lower(), re.split(' |-', algorithm_file))))
+    result_dir = experiment_dir + "/" + algorithm_file + "_results"
+    os.makedirs(result_dir, exist_ok=True)
+
+  for seed in config["seeds"]:
     for partitioner_config in config["config"]:
       partitioner = partitioner_config["partitioner"]
       algorithm_file = partitioner
@@ -200,52 +163,47 @@ with open(args.experiment) as json_experiment:
         algorithm_file = partitioner_config["name"]
       algorithm_file = '_'.join(list(map(lambda x: x.lower(), re.split(' |-', algorithm_file))))
       result_dir = experiment_dir + "/" + algorithm_file + "_results"
-      os.makedirs(result_dir, exist_ok=True)
 
-    for seed in config["seeds"]:
-      for partitioner_config in config["config"]:
-        partitioner = partitioner_config["partitioner"]
-        algorithm_file = partitioner
-        if "name" in partitioner_config:
-          algorithm_file = partitioner_config["name"]
-        algorithm_file = '_'.join(list(map(lambda x: x.lower(), re.split(' |-', algorithm_file))))
-        result_dir = experiment_dir + "/" + algorithm_file + "_results"
+      is_serial_partitioner = not partitioner_mapping[partitioner].parallel
+      config_file = ""
+      if "config_file" in partitioner_config:
+        config_file = partitioner_config["config_file"]
+      algorithm_name = '"' + partitioner + '"'
+      if "name" in partitioner_config:
+        algorithm_name = '"' + partitioner_config["name"] + '"'
+      args = None
+      if "args" in partitioner_config:
+        args = partitioner_config["args"]
+      header = None
+      if dynamic_header and partitioner_mapping[partitioner].dynamic_header:
+        header = partitioner_header(result_dir)
 
-        is_serial_partitioner = partitioner in serial_partitioner
-        config_file = ""
-        if "config_file" in partitioner_config:
-          config_file = partitioner_config["config_file"]
-        algorithm_name = '"' + partitioner + '"'
-        if "name" in partitioner_config:
-          algorithm_name = '"' + partitioner_config["name"] + '"'
-        args = None
-        if "args" in partitioner_config:
-          args = partitioner_config["args"]
+      partitioner_calls = []
+      for instance, tag in get_all_benchmark_instances(partitioner, config).items():
+        for k in config["k"]:
+          for threads in config["threads"]:
+            if is_serial_partitioner and threads > 1 and len(config["threads"]) > 1:
+              continue
+            call = partitioner_call(is_serial_partitioner, partitioner, instance, threads, k, epsilon, seed, objective, timelimit, config_file, algorithm_name, args, header, tag)
+            header = None
+            if write_partition_file:
+              call += " --partition_folder=" + os.path.abspath(result_dir)
+            call += " >> " + partitioner_dump(result_dir, instance, threads, k, seed)
+            partitioner_calls.append(call)
 
-        for instance, tag in get_all_benchmark_instances(partitioner, config).items():
-          for k in config["k"]:
-              partitioner_calls = []
-              for threads in config["threads"]:
-                if is_serial_partitioner and threads > 1 and len(config["threads"]) > 1:
-                  continue
-                if is_serial_partitioner:
-                  partitioner_call = serial_partitioner_call(partitioner, instance, k, epsilon, seed, objective, timelimit, config_file, algorithm_name, args)
-                else:
-                  partitioner_call = parallel_partitioner_call(partitioner, instance, threads, k, epsilon, seed, objective, timelimit, config_file, algorithm_name, args)
-                if write_partition_file:
-                  partitioner_call = partitioner_call + " --partition_folder=" + os.path.abspath(result_dir)
-                if tag is not None:
-                  partitioner_call = partitioner_call + f' | {{ line=$(cat); echo "{tag},$line"; }}'  # bash snippet which prepends to stdin
-                partitioner_call = partitioner_call + " >> " + partitioner_dump(result_dir, instance, threads, k, seed)
-                partitioner_calls.extend([partitioner_call])
+      # Write partitioner calls to workload file
+      with open(experiment_dir + "/" + algorithm_file + "_workload.txt", "a") as partitioner_workload_file:
+        partitioner_workload_file.write("\n".join(partitioner_calls))
+        partitioner_workload_file.write("\n")
 
-              # Write partitioner calls to workload file
-              with open(experiment_dir + "/" + algorithm_file + "_workload.txt", "w") as partitioner_workload_file:
-                partitioner_workload_file.write("\n".join(partitioner_calls))
-                partitioner_workload_file.write("\n")
+      with open(workload_file, "a") as global_workload_file:
+        global_workload_file.write("\n".join(partitioner_calls))
+        global_workload_file.write("\n")
 
-              with open(workload_file, "a") as global_workload_file:
-                global_workload_file.write("\n".join(partitioner_calls))
-                global_workload_file.write("\n")
-
+except AssertionError as e:
+  shutil.rmtree(experiment_dir, ignore_errors=True)
+  raise e
+except FileNotFoundError as e:
+  shutil.rmtree(experiment_dir, ignore_errors=True)
+  raise e
 

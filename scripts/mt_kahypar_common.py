@@ -20,6 +20,7 @@ _result_values = {
   "timeout": "no",
   "failed": "no",
 }
+_result_initialized = False
 
 
 def get_args():
@@ -34,6 +35,8 @@ def get_args():
   parser.add_argument("--partition_folder", type=str, default = "")
   parser.add_argument("--name", type=str, default = "")
   parser.add_argument("--args", type=str, default = "")
+  parser.add_argument("--header", type=str, default = "")
+  parser.add_argument("--tag", action="store_true")
 
   return parser.parse_args()
 
@@ -71,9 +74,12 @@ def run_mtkahypar(mt_kahypar, args, default_args, print_fail_msg=True, detect_in
     cmd.extend(["--partition-output-folder=" + args.partition_folder])
   mt_kahypar_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True, preexec_fn=os.setsid)
 
-  # TODO: signal handler!!!
-  def kill_proc():
+  # handle early interrupt cases where the Mt-KaHyPar process should be killed
+  def kill_proc(*args):
     os.killpg(os.getpgid(mt_kahypar_proc.pid), signal.SIGTERM)
+
+  signal.signal(signal.SIGINT, kill_proc)
+  signal.signal(signal.SIGTERM, kill_proc)
 
   t = Timer(args.timelimit, kill_proc)
   t.start()
@@ -127,6 +133,7 @@ def print_call(mt_kahypar, args, default_args, detect_instance_type=False):
          "--show-detailed-timing=true",
          *args_list]
   print(shlex.join(cmd))
+  return None, None
 
 
 ###############################
@@ -134,11 +141,13 @@ def print_call(mt_kahypar, args, default_args, detect_instance_type=False):
 ###############################
 
 def set_result_vals(**kwargs):
-  global _result_values
+  global _result_values, _result_initialized
   _result_values.update(kwargs)
+  _result_initialized = True
 
 
 def parse(result_line, key, *, out=None, parser=float):
+  assert _result_initialized, "set_result_vals must be called before parsing"
   assert parse != bool, "Parsing via bool does not work"
   if out is None:
     out = key
@@ -162,6 +171,7 @@ def parse_required_value(result_line, key, *, out=None, parser=float):
     assert False, f"Required key {key} not contained in result line!"
 
 def print_result(algorithm, args):
+  assert _result_initialized, "set_result_vals must be called before print_result"
   timeout = _result_values["timeout"]
   failed = _result_values["failed"]
   imbalance = _result_values["imbalance"]
@@ -191,6 +201,14 @@ def print_result(algorithm, args):
         # (guaranteed since python 3.7)
         *_result_values.values().__iter__(),
         sep=",")
+
+  if args.header != "":
+    header = ["algorithm", "graph", "timeout", "seed", "k", "epsilon", "num_threads", "imbalance", "totalPartitionTime", "objective", "km1", "cut", "failed"]
+    if args.tag:
+      header.insert(0, "tag")
+    header.extend(_result_values.keys())
+    with open(args.header, "w") as header_file:
+      header_file.write(",".join(header) + "\n")
 
   if args.partition_folder != "":
     src_partition_file = args.partition_folder + "/" + ntpath.basename(args.graph) + ".part" + str(args.k) + ".epsilon" + str(args.epsilon) + ".seed" + str(args.seed) + ".KaHyPar"
