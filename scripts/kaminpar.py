@@ -39,8 +39,7 @@ kaminpar_call = [kaminpar,
                  "-k" + str(args.k),
                  "--threads="+str(args.threads),
                  "--epsilon="+str(args.epsilon),
-                 "--seed="+str(args.seed),
-                 "--experiment"]
+                 "--seed="+str(args.seed)]
 if args.k >= 1024:
   kaminpar_call.append("--fast-ip")
 
@@ -67,12 +66,13 @@ failed = "no"
 if kaminpar_proc.returncode == 0:
   for line in out.split('\n'):
     s = str(line).strip()
-    if "RESULT" in s:
-      cut = int(s.split(' cut=')[1].split(" ")[0])
+    if "Edge cut:" in s:
+      cut = int(s.split('Edge cut:')[1].strip())
       km1 = cut
-      imbalance = float(s.split(' imbalance=')[1].split(" ")[0])
-    if "TIME" in s:
-      total_time = float(s.split(' partitioning=')[1].split(" ")[0])
+    if "Imbalance:" in s:
+      imbalance = float(s.split('Imbalance:')[1].strip())
+    if "|- Partitioning:" in s:
+      total_time = float(s.split(' ')[-2].strip())
 elif kaminpar_proc.returncode == -signal.SIGTERM:
   timeout = "yes"
 else:
